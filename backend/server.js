@@ -9,9 +9,10 @@ const cors=require("cors")
 const app = express();
 
 app.use(cors({
-  origin: "https://diabetes-predictor-app-dusky.vercel.app/",
+  origin: "https://diabetes-predictor-app-dusky.vercel.app",
   credentials: true
 }));
+app.options("*", cors());
 
 
 app.use(express.json());
@@ -31,18 +32,3 @@ app.use("/health",healthRoutes)
 app.listen(3000, () => {
     console.log("Server running on port 3000");
 })
-// const express = require("express");
-// const app = express();
-
-// app.use(express.json());
-
-// console.log("🚀 Server started");
-
-// app.get("/", (req, res) => {
-//     console.log("Root route hit");
-//     res.send("Server working");
-// });
-
-// app.listen(3000, () => {
-//     console.log("Server running on port 3000");
-// });
