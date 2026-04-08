@@ -9,7 +9,7 @@ const cors=require("cors")
 const app = express();
 
 app.use(cors({
-  origin: "https://diabetes-predictor-app-vert.vercel.app/",
+  origin: "https://diabetes-predictor-app-dusky.vercel.app/",
   credentials: true
 }));
 
