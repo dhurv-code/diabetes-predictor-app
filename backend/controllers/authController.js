@@ -25,11 +25,11 @@ exports.register=async (req,res)=>{
             email: user.email
         };
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "User registered successfully",
             user: userResponse
         });
-    res.json(user);
+    // res.json(user);
 };
 
 exports.login=async(req,res)=>{
