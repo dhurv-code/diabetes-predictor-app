@@ -9,10 +9,12 @@ const cors=require("cors")
 const app = express();
 
 app.use(cors({
-  origin: "https://diabetes-predictor-app-dusky.vercel.app",
+  origin: ["https://diabetes-predictor-app-dusky.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
-app.options("*", cors());
+app.use(cors())
 
 
 app.use(express.json());
