@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(cors({
-  origin: "https://diabetes-predictor-app-git-main-dhurv-guptas-projects.vercel.app/",
+  origin: "https://diabetes-predictor-app-git-main-dhurv-guptas-projects.vercel.app",
   credentials: true
 }));
 
