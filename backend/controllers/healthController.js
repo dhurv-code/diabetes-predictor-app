@@ -21,7 +21,7 @@ exports.predict = async (req, res) => {
     try {
         
         const response = await axios.post(
-            "https://diabetes-predictor-app-1.onrender.com",
+            "https://diabetes-predictor-app-pnmk.onrender.com",
             req.body,
             { timeout: 5000 }
         );
