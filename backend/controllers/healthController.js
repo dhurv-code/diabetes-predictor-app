@@ -21,15 +21,21 @@ exports.predict = async (req, res) => {
     try {
 
         const formattedData = {
-            ...req.body,
+            age: Number(req.body.age),
             gender: req.body.gender === "Male" ? 1 : 0,
+            bmi: Number(req.body.bmi),
+            blood_pressure: Number(req.body.blood_pressure),
+            glucose: Number(req.body.glucose),
+            physical_activity: Number(req.body.physical_activity),
             family_history: req.body.family_history === "Yes" ? 1 : 0,
             smoking: req.body.smoking === "Yes" ? 1 : 0,
             alcohol: req.body.alcohol === "Yes" ? 1 : 0,
+            sleep_hours: Number(req.body.sleep_hours),
+            stress_level: Number(req.body.stress_level),
             junk_food: req.body.junk_food === "High" ? 1 : 0
         };
 
-        console.log("Sending:", formattedData);
+        console.log("👉 Sending to ML:", formattedData);
 
         const response = await axios.post(
             "https://diabetes-predictor-app-pnmk.onrender.com/predict",
@@ -37,9 +43,9 @@ exports.predict = async (req, res) => {
             { timeout: 5000 }
         );
 
-        console.log("ML response:", response.data);
+        console.log("👉 ML RESPONSE:", response.data);
 
-        if (!response.data.prediction) {
+        if (!response.data || response.data.prediction === undefined) {
             return res.status(400).json({
                 error: "Invalid ML response",
                 details: response.data
@@ -58,7 +64,7 @@ exports.predict = async (req, res) => {
         });
 
     } catch (err) {
-        console.log("FULL ERROR:", err.response?.data || err.message);
+        console.log("❌ FULL ERROR:", err.response?.data || err);
         res.status(500).json({
             error: err.message,
             details: err.response?.data
