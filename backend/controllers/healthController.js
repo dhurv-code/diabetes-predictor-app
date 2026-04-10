@@ -38,7 +38,7 @@ exports.predict = async (req, res) => {
         console.log("👉 Sending to ML:", formattedData);
 
         const response = await axios.post(
-            "https://diabetes-predictor-app-pnmk.onrender.com/predict",
+            "https://diabetes-predictor-app-1.onrender.com/predict",
             formattedData,
             { timeout: 5000 }
         );
