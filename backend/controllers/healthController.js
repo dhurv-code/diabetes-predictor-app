@@ -29,6 +29,8 @@ exports.predict = async (req, res) => {
             junk_food: req.body.junk_food === "High" ? 1 : 0
         };
 
+        console.log("Sending:", formattedData);
+
         const response = await axios.post(
             "https://diabetes-predictor-app-pnmk.onrender.com/predict",
             formattedData,
@@ -37,18 +39,29 @@ exports.predict = async (req, res) => {
 
         console.log("ML response:", response.data);
 
-        const prediction = response.data.prediction;
+        if (!response.data.prediction) {
+            return res.status(400).json({
+                error: "Invalid ML response",
+                details: response.data
+            });
+        }
 
         const record = await HealthRecord.create({
             userId: req.user?.id,
             inputData: req.body,
-            prediction
+            prediction: response.data.prediction
         });
 
-        return res.json({ prediction, record });
+        return res.json({
+            prediction: response.data.prediction,
+            record
+        });
 
     } catch (err) {
-        console.log("❌ ERROR:", err.response?.data || err.message);
-        res.status(500).json({ error: err.message });
+        console.log("FULL ERROR:", err.response?.data || err.message);
+        res.status(500).json({
+            error: err.message,
+            details: err.response?.data
+        });
     }
 };
