@@ -21,14 +21,14 @@ exports.predict = async (req, res) => {
     try {
         
         const response = await axios.post(
-            "https://diabetes-predictor-app-pnmk.onrender.com",
+            "https://diabetes-predictor-app-pnmk.onrender.com/predict",
             req.body,
             { timeout: 5000 }
         );
         const prediction = response.data.prediction;
 
         const record=await HealthRecord.create({
-            userId:req.user.id,
+            userId:req.user?.id,
             inputData:req.body,
             prediction
         })
