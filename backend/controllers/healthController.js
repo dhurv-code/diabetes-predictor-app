@@ -19,24 +19,36 @@ const HealthRecord=require("../models/HealthRecord")
 
 exports.predict = async (req, res) => {
     try {
-        
+
+        const formattedData = {
+            ...req.body,
+            gender: req.body.gender === "Male" ? 1 : 0,
+            family_history: req.body.family_history === "Yes" ? 1 : 0,
+            smoking: req.body.smoking === "Yes" ? 1 : 0,
+            alcohol: req.body.alcohol === "Yes" ? 1 : 0,
+            junk_food: req.body.junk_food === "High" ? 1 : 0
+        };
+
         const response = await axios.post(
             "https://diabetes-predictor-app-pnmk.onrender.com/predict",
-            req.body,
+            formattedData,
             { timeout: 5000 }
         );
+
+        console.log("ML response:", response.data);
+
         const prediction = response.data.prediction;
 
-        const record=await HealthRecord.create({
-            userId:req.user?.id,
-            inputData:req.body,
+        const record = await HealthRecord.create({
+            userId: req.user?.id,
+            inputData: req.body,
             prediction
-        })
+        });
 
-        return res.json({prediction,record})
+        return res.json({ prediction, record });
 
     } catch (err) {
-        console.log("❌ ERROR:", err.message);
+        console.log("❌ ERROR:", err.response?.data || err.message);
         res.status(500).json({ error: err.message });
     }
 };
