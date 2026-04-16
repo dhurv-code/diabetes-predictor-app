@@ -1,21 +1,7 @@
-const axios=require("axios")
-const HealthRecord=require("../models/HealthRecord")
+const axios = require("axios");
+const HealthRecord = require("../models/HealthRecord");
 
-// exports.predict=async(req,res)=>{
-//     try{
-//         console.log("🔥 Controller hit");
-//         console.log("Step 2: Response from Flask:", response.data);
-//         const response=await axios.post(
-//             "http://127.0.0.1:5000/predict",req.body,{timeout:5000}
-//         );
-//         console.log("Step 2: Response from Flask:", response.data);
-
-//         res.json(response.data)
-
-//     }catch(err){
-//         res.status(500).json({error:"ML API FAILED"})
-//     }
-// }
+const ML_URL = "https://diabetes-predictor-app-1.onrender.com";
 
 exports.predict = async (req, res) => {
     try {
@@ -37,11 +23,39 @@ exports.predict = async (req, res) => {
 
         console.log("👉 Sending to ML:", formattedData);
 
-        const response = await axios.post(
-            "https://diabetes-predictor-app-1.onrender.com/predict",
-            formattedData,
-            { timeout: 5000 }
-        );
+        // 🔥 STEP 1: WAKE UP ML SERVER
+        try {
+            await axios.get(ML_URL, { timeout: 5000 });
+            console.log("✅ ML server awake");
+        } catch {
+            console.log("⚠️ ML wake-up failed (might be sleeping)");
+        }
+
+        // 🔥 STEP 2: RETRY LOGIC
+        let response;
+        let lastError;
+
+        for (let i = 0; i < 2; i++) {
+            try {
+                response = await axios.post(
+                    `${ML_URL}/predict`,
+                    formattedData,
+                    { timeout: 20000 } // ⬅️ increased timeout
+                );
+                break;
+            } catch (err) {
+                lastError = err;
+                console.log(`⚠️ Attempt ${i + 1} failed`);
+
+                // wait before retry
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+            }
+        }
+
+        // ❌ If still failed after retries
+        if (!response) {
+            throw lastError;
+        }
 
         console.log("👉 ML RESPONSE:", response.data);
 
@@ -64,10 +78,11 @@ exports.predict = async (req, res) => {
         });
 
     } catch (err) {
-        console.log("❌ FULL ERROR:", err.response?.data || err);
-        res.status(500).json({
-            error: err.message,
-            details: err.response?.data
+        console.log("❌ FULL ERROR:", err.response?.data || err.message);
+
+        return res.status(200).json({
+            prediction: null,
+            message: "Server is waking up, please try again in a few seconds"
         });
     }
 };
