@@ -1,20 +1,41 @@
+// import { useState } from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../services/Api";
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({});
   const [result, setResult] = useState(null);
 
   const handlePredict = async () => {
-    console.log("Button Clicked")
-    try {
-      const res = await API.post("/health/predict", form);
-      setResult(res.data.prediction);
-    } catch(err){
-      console.log("Full error",err)
-      alert(err.response?.data?.message||err.message)
+  const token = localStorage.getItem("token");
+
+  // No token
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  try {
+    const res = await API.post("/health/predict", form);
+    setResult(res.data.prediction);
+
+  } catch (err) {
+
+    // Invalid token from backend
+    if (
+      err.response?.data?.message === "Invalid token" ||
+      err.response?.status === 401
+    ) {
+      localStorage.removeItem("token");
+      navigate("/login");
+      return;
     }
-  };
+
+    alert(err.response?.data?.message || "Prediction failed");
+  }
+};
 
   const getRiskLabel = (value) => {
   if (value === 0) return { text: "Low Risk", color: "green" };
@@ -23,7 +44,7 @@ function Dashboard() {
 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br bg-black flex items-center justify-center p-4">
 
   <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-4xl">
 
@@ -135,6 +156,7 @@ function Dashboard() {
 
   </div>
 )}
+
 
   </div>
 </div>
